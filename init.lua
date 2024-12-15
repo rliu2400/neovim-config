@@ -168,6 +168,20 @@ require("lazy").setup({
             )
         end,
     },
+
+    -- Terminal integration
+    {
+        "akinsho/toggleterm.nvim",
+        config = function()
+            require("toggleterm").setup({
+                size = 20,
+                open_mapping = [[<c-\>]],
+                direction = "horizontal",
+                persist_size = true,
+                close_on_exit = true,
+            })
+        end,
+    },
 })
 
 -- Set tab settings
@@ -187,3 +201,4 @@ vim.opt.number = true
 --    - LaTeX: texlab (`brew install texlab`)
 -- 3. Install Zathura for PDF preview: `brew install zathura`
 -- 4. Clone this configuration into `~/.config/nvim/init.lua`
+-- 5. Install Stylua for Lua formatting: `brew install stylua`
