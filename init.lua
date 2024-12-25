@@ -132,7 +132,7 @@ require("lazy").setup({
             require("ibl").setup({})
         end,
     },
-    -- Lua Formatter
+    -- Formatter
     {
         "mhartington/formatter.nvim",
         config = function()
@@ -153,6 +153,60 @@ require("lazy").setup({
                             }
                         end,
                     },
+                    cpp = {
+                        function()
+                            return {
+                                exe = "clang-format",
+                                args = { "--assume-filename", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
+                    javascript = {
+                        function()
+                            return {
+                                exe = "prettier",
+                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
+                    typescript = {
+                        function()
+                            return {
+                                exe = "prettier",
+                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
+                    html = {
+                        function()
+                            return {
+                                exe = "prettier",
+                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
+                    css = {
+                        function()
+                            return {
+                                exe = "prettier",
+                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
+                    json = {
+                        function()
+                            return {
+                                exe = "prettier",
+                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
                 },
             })
 
@@ -161,7 +215,7 @@ require("lazy").setup({
                 [[
                 augroup FormatAutogroup
                     autocmd!
-                    autocmd BufWritePost *.lua FormatWrite
+                    autocmd BufWritePost * FormatWrite
                 augroup END
             ]],
                 true
