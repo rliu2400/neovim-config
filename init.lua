@@ -36,7 +36,13 @@ require("lazy").setup({
             "hrsh7th/cmp-buffer", -- Buffer source for nvim-cmp
             "hrsh7th/cmp-path", -- Path source for nvim-cmp
             "saadparwaiz1/cmp_luasnip", -- Snippets source for nvim-cmp
-            "L3MON4D3/LuaSnip", -- Snippets plugin
+            {
+                "L3MON4D3/LuaSnip",
+                -- follow latest release.
+                version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+                -- install jsregexp (optional!).
+                build = "make install_jsregexp",
+            },
         },
         config = function()
             local lspconfig = require("lspconfig")
@@ -166,7 +172,12 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "prettier",
-                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                args = {
+                                    "--config",
+                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
+                                    "--stdin-filepath",
+                                    vim.api.nvim_buf_get_name(0),
+                                },
                                 stdin = true,
                             }
                         end,
@@ -175,7 +186,12 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "prettier",
-                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                args = {
+                                    "--config",
+                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
+                                    "--stdin-filepath",
+                                    vim.api.nvim_buf_get_name(0),
+                                },
                                 stdin = true,
                             }
                         end,
@@ -184,7 +200,12 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "prettier",
-                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                args = {
+                                    "--config",
+                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
+                                    "--stdin-filepath",
+                                    vim.api.nvim_buf_get_name(0),
+                                },
                                 stdin = true,
                             }
                         end,
@@ -193,7 +214,12 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "prettier",
-                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                args = {
+                                    "--config",
+                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
+                                    "--stdin-filepath",
+                                    vim.api.nvim_buf_get_name(0),
+                                },
                                 stdin = true,
                             }
                         end,
@@ -202,7 +228,12 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "prettier",
-                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                args = {
+                                    "--config",
+                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
+                                    "--stdin-filepath",
+                                    vim.api.nvim_buf_get_name(0),
+                                },
                                 stdin = true,
                             }
                         end,
@@ -213,10 +244,10 @@ require("lazy").setup({
             -- Automatically format on save
             vim.api.nvim_exec(
                 [[
-                augroup FormatAutogroup
-                    autocmd!
-                    autocmd BufWritePost * FormatWrite
-                augroup END
+            augroup FormatAutogroup
+                autocmd!
+                autocmd BufWritePost * FormatWrite
+            augroup END
             ]],
                 true
             )
@@ -243,6 +274,9 @@ vim.opt.expandtab = true -- Use spaces instead of tabs
 vim.opt.shiftwidth = 4 -- Number of spaces for each indentation
 vim.opt.tabstop = 4 -- Number of spaces that a <Tab> counts for
 vim.opt.number = true
+
+-- Python
+vim.g.python3_host_prog = "/opt/homebrew/bin/python3"
 
 -- Dependencies installation instructions:
 -- 1. Install Neovim (v0.8+ recommended) via Homebrew: `brew install neovim`
