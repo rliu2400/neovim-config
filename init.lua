@@ -120,13 +120,7 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "stylua",
-                                args = {
-                                    "--indent-width",
-                                    "4",
-                                    "--indent-type",
-                                    "Spaces",
-                                    "-",
-                                },
+                                args = { "--config-path", vim.fn.expand("~/.config/stylua.toml"), "-" },
                                 stdin = true,
                             }
                         end,
@@ -176,7 +170,6 @@ require("lazy").setup({
         config = function()
             require("lint").linters_by_ft = {
                 python = { "flake8" },
-                lua = { "luacheck" },
                 javascript = { "eslint" },
                 typescript = { "eslint" },
             }
@@ -230,3 +223,11 @@ vim.opt.number = true
 
 -- Python host program
 vim.g.python3_host_prog = "/opt/homebrew/bin/python3"
+
+-- Required dependencies:
+-- Install Mason-managed LSPs and formatters: clangd, pyright, jdtls, ts_ls, html, cssls, jsonls, texlab
+-- Install external formatters: stylua, black, clang-format, prettier
+-- Install external linters: flake8, eslint
+-- Ensure lazy.nvim is installed for package management
+-- Optional: Install luacheck if you want Lua linting
+
