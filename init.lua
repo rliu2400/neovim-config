@@ -252,6 +252,12 @@ vim.opt.number = true
 -- Python host program
 vim.g.python3_host_prog = "/opt/homebrew/bin/python3"
 
+vim.g.mapleader = " " -- Set leader key to Space
+vim.g.maplocalleader = " " -- Also set local leader to Space
+
+vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { noremap = true, silent = true }) -- Open file explorer
+vim.keymap.set("n", "<leader>f", ":FormatWrite<CR>", { noremap = true, silent = true }) -- Format file
+
 -- Required dependencies:
 -- Install Mason-managed LSPs and formatters: clangd, pyright, jdtls, ts_ls, html, cssls, jsonls, texlab
 -- Install external formatters: stylua, black, clang-format, prettier
