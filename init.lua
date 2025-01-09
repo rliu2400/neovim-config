@@ -74,6 +74,28 @@ require("lazy").setup({
         end,
     },
 
+    -- LuaSnip for snippets
+    {
+        "L3MON4D3/LuaSnip",
+        version = "v2.*",
+        build = "make install_jsregexp",
+        config = function()
+            require("luasnip").config.set_config({
+                enable_autosnippets = true,
+                store_selection_keys = "<Tab>",
+            })
+        end,
+    },
+
+    -- VimTeX for LaTeX support
+    {
+        "lervag/vimtex",
+        lazy = false,
+        config = function()
+            vim.g.vimtex_view_method = "zathura"
+        end,
+    },
+
     -- Autopairs
     {
         "windwp/nvim-autopairs",
@@ -120,7 +142,13 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "stylua",
-                                args = { "--config-path", vim.fn.expand("~/.config/stylua.toml"), "-" },
+                                args = {
+                                    "--indent-width",
+                                    "4",
+                                    "--indent-type",
+                                    "Spaces",
+                                    "-",
+                                },
                                 stdin = true,
                             }
                         end,
@@ -230,4 +258,3 @@ vim.g.python3_host_prog = "/opt/homebrew/bin/python3"
 -- Install external linters: flake8, eslint
 -- Ensure lazy.nvim is installed for package management
 -- Optional: Install luacheck if you want Lua linting
-
