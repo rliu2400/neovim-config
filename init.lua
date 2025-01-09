@@ -2,7 +2,7 @@
 -- Ensure you have lazy.nvim installed before proceeding
 
 -- Install lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+    local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
         "git",
@@ -27,107 +27,48 @@ require("lazy").setup({
         end,
     },
 
-    -- LSP and autocompletion plugins
+    -- Autocompletion plugins
     {
-        "neovim/nvim-lspconfig",
+        "hrsh7th/nvim-cmp", -- Autocompletion
         dependencies = {
-            "hrsh7th/nvim-cmp", -- Autocompletion
             "hrsh7th/cmp-nvim-lsp", -- LSP source for nvim-cmp
             "hrsh7th/cmp-buffer", -- Buffer source for nvim-cmp
             "hrsh7th/cmp-path", -- Path source for nvim-cmp
             "saadparwaiz1/cmp_luasnip", -- Snippets source for nvim-cmp
-            {
-                "L3MON4D3/LuaSnip",
-                -- follow latest release.
-                version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-                -- install jsregexp (optional!).
-                build = "make install_jsregexp",
-                config = function()
-                    require("luasnip").config.set_config({ -- Setting LuaSnip config
-
-                        -- Enable autotriggered snippets
-                        enable_autosnippets = true,
-
-                        -- Use Tab (or some other key if you prefer) to trigger visual selection
-                        store_selection_keys = "<Tab>",
-                    })
-                end,
-            },
         },
         config = function()
-            local lspconfig = require("lspconfig")
-
-            -- Configure LSP servers
-            lspconfig.clangd.setup({}) -- C++       check ~/.clangd for compile commands
-            lspconfig.pyright.setup({}) -- Python
-            lspconfig.jdtls.setup({}) -- Java
-            lspconfig.ts_ls.setup({}) -- JavaScript and TypeScript
-            lspconfig.html.setup({}) -- HTML
-            lspconfig.cssls.setup({}) -- CSS
-            lspconfig.jsonls.setup({}) -- JSON
-            lspconfig.texlab.setup({ -- LaTeX
-                settings = {
-                    latex = {
-                        build = {
-                            onSave = true,
-                        },
-                        forwardSearch = {
-                            executable = "zathura",
-                            args = { "--synctex-forward", "%l:1:%f", "%p" },
-                        },
-                    },
-                },
-            })
-
-            -- Autocompletion configuration
             local cmp = require("cmp")
             cmp.setup({
                 mapping = {
-                    ["<Tab>"] = cmp.mapping.select_next_item(),
-                    ["<S-Tab>"] = cmp.mapping.select_prev_item(),
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                    ["<Tab>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() then
+                            cmp.select_next_item()
+                        elseif vim.fn.pumvisible() == 0 then
+                            fallback()
+                        end
+                    end, { "i", "s" }),
+
+                    ["<S-Tab>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() then
+                            cmp.select_prev_item()
+                        else
+                            fallback()
+                        end
+                    end, { "i", "s" }),
+
+                    ["<CR>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() and cmp.get_selected_entry() then
+                            cmp.confirm({ select = true })
+                        else
+                            fallback()
+                        end
+                    end, { "i", "s" }),
                 },
                 sources = {
                     { name = "nvim_lsp" },
                     { name = "buffer" },
                     { name = "path" },
-                },
-            })
-        end,
-    },
-
-    -- File navigator
-    {
-        "nvim-tree/nvim-tree.lua",
-        dependencies = {
-            "nvim-tree/nvim-web-devicons", -- Optional for file icons
-        },
-        config = function()
-            require("nvim-tree").setup()
-        end,
-    },
-
-    -- Git integration
-    {
-        "tpope/vim-fugitive", -- Git commands
-    },
-    {
-        "lewis6991/gitsigns.nvim", -- Git status in the UI
-        config = function()
-            require("gitsigns").setup()
-        end,
-    },
-
-    -- Statusline
-    {
-        "nvim-lualine/lualine.nvim",
-        dependencies = { "nvim-tree/nvim-web-devicons", lazy = true },
-        config = function()
-            require("lualine").setup({
-                options = {
-                    theme = "tokyonight",
-                    section_separators = "",
-                    component_separators = "|",
+                    { name = "luasnip" },
                 },
             })
         end,
@@ -141,13 +82,34 @@ require("lazy").setup({
         end,
     },
 
-    -- Indent Guides
+    -- Mason for managing LSP servers, linters, and formatters
     {
-        "lukas-reineke/indent-blankline.nvim",
+        "williamboman/mason.nvim",
         config = function()
-            require("ibl").setup({})
+            require("mason").setup()
         end,
     },
+    {
+        "williamboman/mason-lspconfig.nvim",
+        dependencies = { "neovim/nvim-lspconfig" },
+        config = function()
+            require("mason-lspconfig").setup({
+                ensure_installed = { "clangd", "pyright", "jdtls", "ts_ls", "html", "cssls", "jsonls", "texlab" },
+            })
+        end,
+    },
+    {
+        "neovim/nvim-lspconfig",
+        dependencies = { "williamboman/mason-lspconfig.nvim" },
+        config = function()
+            local lspconfig = require("lspconfig")
+            local servers = { "clangd", "pyright", "jdtls", "ts_ls", "html", "cssls", "jsonls", "texlab" }
+            for _, server in ipairs(servers) do
+                lspconfig[server].setup({})
+            end
+        end,
+    },
+
     -- Formatter
     {
         "mhartington/formatter.nvim",
@@ -158,92 +120,16 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "stylua",
-                                args = {
-                                    "--indent-width",
-                                    "4",
-                                    "--indent-type",
-                                    "Spaces",
-                                    "-",
-                                },
+                                args = { "--config-path", vim.fn.expand("~/.config/stylua.toml") },
                                 stdin = true,
                             }
                         end,
                     },
-                    cpp = {
+                    python = {
                         function()
                             return {
-                                exe = "clang-format",
-                                args = { "--assume-filename", vim.api.nvim_buf_get_name(0) },
-                                stdin = true,
-                            }
-                        end,
-                    },
-                    javascript = {
-                        function()
-                            return {
-                                exe = "prettier",
-                                args = {
-                                    "--config",
-                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
-                                    "--stdin-filepath",
-                                    vim.api.nvim_buf_get_name(0),
-                                },
-                                stdin = true,
-                            }
-                        end,
-                    },
-                    typescript = {
-                        function()
-                            return {
-                                exe = "prettier",
-                                args = {
-                                    "--config",
-                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
-                                    "--stdin-filepath",
-                                    vim.api.nvim_buf_get_name(0),
-                                },
-                                stdin = true,
-                            }
-                        end,
-                    },
-                    html = {
-                        function()
-                            return {
-                                exe = "prettier",
-                                args = {
-                                    "--config",
-                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
-                                    "--stdin-filepath",
-                                    vim.api.nvim_buf_get_name(0),
-                                },
-                                stdin = true,
-                            }
-                        end,
-                    },
-                    css = {
-                        function()
-                            return {
-                                exe = "prettier",
-                                args = {
-                                    "--config",
-                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
-                                    "--stdin-filepath",
-                                    vim.api.nvim_buf_get_name(0),
-                                },
-                                stdin = true,
-                            }
-                        end,
-                    },
-                    json = {
-                        function()
-                            return {
-                                exe = "prettier",
-                                args = {
-                                    "--config",
-                                    os.getenv("PRETTIER_CONFIG"), -- Use $PRETTIER_CONFIG environment variable
-                                    "--stdin-filepath",
-                                    vim.api.nvim_buf_get_name(0),
-                                },
+                                exe = "black",
+                                args = { "--fast", "-" },
                                 stdin = true,
                             }
                         end,
@@ -251,65 +137,77 @@ require("lazy").setup({
                 },
             })
 
-            -- Automatically format on save
+            -- Auto-format on save
             vim.api.nvim_exec(
                 [[
-            augroup FormatAutogroup
-                autocmd!
-                autocmd BufWritePost * FormatWrite
-            augroup END
-            ]],
+                augroup FormatAutogroup
+                    autocmd!
+                    autocmd BufWritePost * FormatWrite
+                augroup END
+                ]],
                 true
             )
         end,
     },
 
-    -- Terminal integration
+    -- null-ls for linting and additional formatting
     {
-        "akinsho/toggleterm.nvim",
+        "jose-elias-alvarez/null-ls.nvim",
+        dependencies = { "williamboman/mason.nvim", "nvim-lua/plenary.nvim" },
         config = function()
-            require("toggleterm").setup({
-                size = 20,
-                open_mapping = [[<c-\>]],
-                direction = "horizontal",
-                persist_size = true,
-                close_on_exit = true,
+            local null_ls = require("null-ls")
+            null_ls.setup({
+                sources = {
+                    null_ls.builtins.formatting.prettier,
+                    null_ls.builtins.formatting.black,
+                    null_ls.builtins.formatting.stylua,
+                    null_ls.builtins.diagnostics.flake8,
+                    null_ls.builtins.diagnostics.eslint,
+                },
+            })
+        end,
+    },
+
+    -- Git integration
+    { "tpope/vim-fugitive" },
+    {
+        "lewis6991/gitsigns.nvim",
+        config = function()
+            require("gitsigns").setup()
+        end,
+    },
+
+    -- File explorer
+    {
+        "nvim-tree/nvim-tree.lua",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        config = function()
+            require("nvim-tree").setup()
+        end,
+    },
+
+    -- Statusline
+    {
+        "nvim-lualine/lualine.nvim",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        config = function()
+            require("lualine").setup({
+                options = {
+                    theme = "tokyonight",
+                    section_separators = "",
+                    component_separators = "|",
+                },
             })
         end,
     },
 })
 
--- LuaSnip trigger
-vim.cmd([[
-" Use Tab to expand and jump through snippets
-imap <silent><expr> <C-j> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<C-j>' 
-smap <silent><expr> <C-j> luasnip#jumpable(1) ? '<Plug>luasnip-jump-next' : '<C-j>'
-
-" Use Shift-Tab to jump backwards through snippets
-imap <silent><expr> <C-k> luasnip#jumpable(-1) ? '<Plug>luasnip-jump-prev' : '<C-k>'
-smap <silent><expr> <C-k> luasnip#jumpable(-1) ? '<Plug>luasnip-jump-prev' : '<C-k>'
-]])
-
-require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/LuaSnip/" })
-
 -- Set tab settings
-vim.opt.expandtab = true -- Use spaces instead of tabs
-vim.opt.shiftwidth = 4 -- Number of spaces for each indentation
-vim.opt.tabstop = 4 -- Number of spaces that a <Tab> counts for
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 4
+vim.opt.tabstop = 4
 vim.opt.number = true
 
--- Python
+-- Python host program
 vim.g.python3_host_prog = "/opt/homebrew/bin/python3"
 
--- Dependencies installation instructions:
--- 1. Install Neovim (v0.8+ recommended) via Homebrew: `brew install neovim`
--- 2. Install language server binaries:
---    - C++: clangd
---    - Python: pyright (`npm install -g pyright`)
---    - Java: jdtls
---    - JavaScript/TypeScript: typescript-language-server (`npm install -g typescript typescript-language-server`)
---    - HTML/CSS/JSON: vscode-html-languageserver, vscode-css-languageserver, vscode-json-languageserver (`npm install -g vscode-langservers-extracted`)
---    - LaTeX: texlab (`brew install texlab`)
--- 3. Install Zathura for PDF preview: `brew install zathura`
--- 4. Clone this configuration into `~/.config/nvim/init.lua`
--- 5. Install Stylua for Lua formatting: `brew install stylua`
