@@ -74,6 +74,14 @@ require("lazy").setup({
         end,
     },
 
+    -- Autopairs
+    {
+        "windwp/nvim-autopairs",
+        config = function()
+            require("nvim-autopairs").setup()
+        end,
+    },
+
     -- Mason for managing LSP servers, linters, and formatters
     {
         "williamboman/mason.nvim",
