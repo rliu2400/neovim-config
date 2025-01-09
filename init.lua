@@ -2,7 +2,7 @@
 -- Ensure you have lazy.nvim installed before proceeding
 
 -- Install lazy.nvim
-    local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
         "git",
@@ -74,14 +74,6 @@ require("lazy").setup({
         end,
     },
 
-    -- Autopairs
-    {
-        "windwp/nvim-autopairs",
-        config = function()
-            require("nvim-autopairs").setup()
-        end,
-    },
-
     -- Mason for managing LSP servers, linters, and formatters
     {
         "williamboman/mason.nvim",
@@ -110,7 +102,7 @@ require("lazy").setup({
         end,
     },
 
-    -- Formatter
+    -- Formatting with formatter.nvim
     {
         "mhartington/formatter.nvim",
         config = function()
@@ -120,7 +112,13 @@ require("lazy").setup({
                         function()
                             return {
                                 exe = "stylua",
-                                args = { "--config-path", vim.fn.expand("~/.config/stylua.toml") },
+                                args = {
+                                    "--indent-width",
+                                    "4",
+                                    "--indent-type",
+                                    "Spaces",
+                                    "-",
+                                },
                                 stdin = true,
                             }
                         end,
@@ -134,36 +132,50 @@ require("lazy").setup({
                             }
                         end,
                     },
+                    cpp = {
+                        function()
+                            return {
+                                exe = "clang-format",
+                                args = { "--assume-filename", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
+                    javascript = {
+                        function()
+                            return {
+                                exe = "prettier",
+                                args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
                 },
             })
-
             -- Auto-format on save
-            vim.api.nvim_exec(
-                [[
-                augroup FormatAutogroup
-                    autocmd!
-                    autocmd BufWritePost * FormatWrite
-                augroup END
-                ]],
-                true
-            )
+            vim.api.nvim_create_autocmd("BufWritePost", {
+                pattern = "*",
+                callback = function()
+                    vim.cmd("FormatWrite")
+                end,
+            })
         end,
     },
 
-    -- null-ls for linting and additional formatting
+    -- Linting with nvim-lint
     {
-        "jose-elias-alvarez/null-ls.nvim",
-        dependencies = { "williamboman/mason.nvim", "nvim-lua/plenary.nvim" },
+        "mfussenegger/nvim-lint",
         config = function()
-            local null_ls = require("null-ls")
-            null_ls.setup({
-                sources = {
-                    null_ls.builtins.formatting.prettier,
-                    null_ls.builtins.formatting.black,
-                    null_ls.builtins.formatting.stylua,
-                    null_ls.builtins.diagnostics.flake8,
-                    null_ls.builtins.diagnostics.eslint,
-                },
+            require("lint").linters_by_ft = {
+                python = { "flake8" },
+                lua = { "luacheck" },
+                javascript = { "eslint" },
+                typescript = { "eslint" },
+            }
+            vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave" }, {
+                callback = function()
+                    require("lint").try_lint()
+                end,
             })
         end,
     },
@@ -210,4 +222,3 @@ vim.opt.number = true
 
 -- Python host program
 vim.g.python3_host_prog = "/opt/homebrew/bin/python3"
-
