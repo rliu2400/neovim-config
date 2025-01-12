@@ -18,12 +18,23 @@ vim.opt.rtp:prepend(lazypath)
 -- Load lazy.nvim
 require("lazy").setup({
     -- Colorscheme: tokyonight
+    -- {
+    --     "folke/tokyonight.nvim",
+    --     lazy = false,
+    --     priority = 1000,
+    --     config = function()
+    --         vim.cmd([[colorscheme tokyonight]])
+    --     end,
+    -- },
+    --
+
     {
-        "folke/tokyonight.nvim",
+        "bluz71/vim-moonfly-colors",
+        name = "moonfly",
         lazy = false,
         priority = 1000,
         config = function()
-            vim.cmd([[colorscheme tokyonight]])
+            vim.cmd([[colorscheme moonfly]])
         end,
     },
 
@@ -92,7 +103,9 @@ require("lazy").setup({
         "lervag/vimtex",
         lazy = false,
         config = function()
-            vim.g.vimtex_view_method = "zathura"
+            vim.g.vimtex_view_method = "skim"
+            vim.g.vimtex_view_skim_sync = 1 -- Enable forward search
+            vim.g.vimtex_view_skim_activate = 1 -- Auto-focus Skim when compiling
         end,
     },
 
@@ -234,7 +247,7 @@ require("lazy").setup({
         config = function()
             require("lualine").setup({
                 options = {
-                    theme = "tokyonight",
+                    theme = "moonfly",
                     section_separators = "",
                     component_separators = "|",
                 },
@@ -260,7 +273,7 @@ vim.keymap.set("n", "<leader>f", ":FormatWrite<CR>", { noremap = true, silent = 
 
 -- Yes, we're just executing a bunch of Vimscript, but this is the officially
 -- endorsed method; see https://github.com/L3MON4D3/LuaSnip#keymaps
-vim.cmd[[
+vim.cmd([[
 " Use Tab to expand and jump through snippets
 imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>' 
 smap <silent><expr> <Tab> luasnip#jumpable(1) ? '<Plug>luasnip-jump-next' : '<Tab>'
@@ -268,7 +281,7 @@ smap <silent><expr> <Tab> luasnip#jumpable(1) ? '<Plug>luasnip-jump-next' : '<Ta
 " Use Shift-Tab to jump backwards through snippets
 imap <silent><expr> <S-Tab> luasnip#jumpable(-1) ? '<Plug>luasnip-jump-prev' : '<S-Tab>'
 smap <silent><expr> <S-Tab> luasnip#jumpable(-1) ? '<Plug>luasnip-jump-prev' : '<S-Tab>'
-]]
+]])
 
 -- Load snippets from ~/.config/nvim/LuaSnip/
 require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/LuaSnip/" })
