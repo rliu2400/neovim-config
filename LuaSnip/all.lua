@@ -12,7 +12,7 @@ return {
             [[
   \documentclass{{article}}
   \usepackage{{amsmath, amssymb, graphicx}}
-  \title{{MATH 320-1 HW 6}}
+  \title{{}}
   \author{{Ryan Liu}}
   \begin{{document}}
   \maketitle
