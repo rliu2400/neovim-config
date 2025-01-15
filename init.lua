@@ -40,12 +40,12 @@ require("lazy").setup({
 
     -- Autocompletion plugins
     {
-        "hrsh7th/nvim-cmp", -- Autocompletion
+        "hrsh7th/nvim-cmp",
         dependencies = {
-            "hrsh7th/cmp-nvim-lsp", -- LSP source for nvim-cmp
-            "hrsh7th/cmp-buffer", -- Buffer source for nvim-cmp
-            "hrsh7th/cmp-path", -- Path source for nvim-cmp
-            "saadparwaiz1/cmp_luasnip", -- Snippets source for nvim-cmp
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+            "saadparwaiz1/cmp_luasnip",
         },
         config = function()
             local cmp = require("cmp")
@@ -104,8 +104,8 @@ require("lazy").setup({
         lazy = false,
         config = function()
             vim.g.vimtex_view_method = "skim"
-            vim.g.vimtex_view_skim_sync = 1 -- Enable forward search
-            vim.g.vimtex_view_skim_activate = 1 -- Auto-focus Skim when compiling
+            vim.g.vimtex_view_skim_sync = 1
+            vim.g.vimtex_view_skim_activate = 1
         end,
     },
 
@@ -189,6 +189,15 @@ require("lazy").setup({
                             return {
                                 exe = "prettier",
                                 args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+                                stdin = true,
+                            }
+                        end,
+                    },
+                    latex = {
+                        function()
+                            return {
+                                exe = "latexindent",
+                                args = { "-w", vim.api.nvim_buf_get_name(0) },
                                 stdin = true,
                             }
                         end,
