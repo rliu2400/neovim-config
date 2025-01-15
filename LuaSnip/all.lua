@@ -14,6 +14,14 @@ return {
   \usepackage{{amsmath, amssymb, graphicx}}
   \title{{}}
   \author{{Ryan Liu}}
+
+  \newtheorem{theorem}{Theorem}[section]
+  \newtheorem{claim}{Claim}[section]
+  \newtheorem{subclaim}{Subclaim}[claim]
+  \newtheorem{corollary}{Corollary}[theorem]
+  \newtheorem{lemma}[theorem]{Lemma}
+
+
   \begin{{document}}
   \maketitle
   \thispagestyle{{empty}}
