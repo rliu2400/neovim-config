@@ -1,6 +1,3 @@
--- Neovim configuration using lazy.nvim as the package manager
--- Ensure you have lazy.nvim installed before proceeding
-
 -- Install lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -85,6 +82,22 @@ require("lazy").setup({
         end,
     },
 
+    {
+        "akinsho/toggleterm.nvim",
+        version = "*",
+        config = function()
+            require("toggleterm").setup({
+                size = function()
+                    return vim.o.columns * 0.5
+                end, -- Terminal takes 40% of the window width
+                open_mapping = [[<C-t>]], -- Keybinding to toggle terminal
+                direction = "vertical", -- Open terminal in a vertical split
+                persist_size = true, -- Terminal retains its last size
+                start_in_insert = true, -- Start in insert mode
+            })
+        end,
+    },
+
     -- LuaSnip for snippets
     {
         "L3MON4D3/LuaSnip",
@@ -107,6 +120,13 @@ require("lazy").setup({
             vim.g.vimtex_view_skim_sync = 1
             vim.g.vimtex_view_skim_activate = 1
         end,
+    },
+
+    {
+        "nvim-telescope/telescope.nvim",
+        tag = "0.1.8",
+        -- or                              , branch = '0.1.x',
+        dependencies = { "nvim-lua/plenary.nvim" },
     },
 
     -- Autopairs
@@ -245,7 +265,7 @@ require("lazy").setup({
         "nvim-tree/nvim-tree.lua",
         dependencies = { "nvim-tree/nvim-web-devicons" },
         config = function()
-            require("nvim-tree").setup()
+            require("nvim-tree").setup({ view = { side = "right" } })
         end,
     },
 
@@ -271,6 +291,9 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.number = true
 
+-- Default split behavior
+vim.o.splitright = true
+
 -- Python host program
 vim.g.python3_host_prog = "/opt/homebrew/bin/python3"
 
@@ -279,6 +302,27 @@ vim.g.maplocalleader = " " -- Also set local leader to Space
 
 vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { noremap = true, silent = true }) -- Open file explorer
 vim.keymap.set("n", "<leader>f", ":FormatWrite<CR>", { noremap = true, silent = true }) -- Format file
+
+vim.keymap.set("n", "<leader>ff", require("telescope.builtin").find_files, {})
+vim.keymap.set("n", "<leader>fg", require("telescope.builtin").live_grep, {})
+vim.keymap.set("n", "<leader>fb", require("telescope.builtin").buffers, {})
+vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags, {})
+
+vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { noremap = true, silent = true })
+
+vim.api.nvim_create_autocmd("TermEnter", {
+    callback = function()
+        -- Check if the buffer is a terminal buffer
+        local bufname = vim.api.nvim_buf_get_name(0)
+        if bufname:match("^term://") then
+            -- Use the terminal's working directory (from shell command)
+            local cwd = vim.fn.systemlist("pwd")[1]
+            if cwd and cwd ~= "" then
+                vim.cmd("lcd " .. vim.fn.fnameescape(cwd))
+            end
+        end
+    end,
+})
 
 -- Yes, we're just executing a bunch of Vimscript, but this is the officially
 -- endorsed method; see https://github.com/L3MON4D3/LuaSnip#keymaps
