@@ -11,15 +11,17 @@ return {
         fmt(
             [[
   \documentclass{{article}}
-  \usepackage{{amsmath, amssymb, graphicx}}
+  \usepackage{{amsmath, amssymb, graphicx, parskip}}
   \title{{}}
   \author{{Ryan Liu}}
 
-  \newtheorem{theorem}{Theorem}[section]
-  \newtheorem{claim}{Claim}[section]
-  \newtheorem{subclaim}{Subclaim}[claim]
-  \newtheorem{corollary}{Corollary}[theorem]
-  \newtheorem{lemma}[theorem]{Lemma}
+  \newtheorem{{theorem}}{{Theorem}}[section]
+  \newtheorem{{claim}}{{Claim}}[section]
+  \newtheorem{{subclaim}}{{Subclaim}}[claim]
+  \newtheorem{{corollary}}{{Corollary}}[theorem]
+  \newtheorem{{lemma}}[theorem]{{Lemma}}
+
+  \renewcommand{{\thesubsection}}{{\thesection.\alph{{subsection}}}}
 
 
   \begin{{document}}
