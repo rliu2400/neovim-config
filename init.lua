@@ -13,6 +13,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("plugins")
+require("lsp")
 
 require("core.options") -- General settings
 require("core.keymaps") -- Key mappings
@@ -39,4 +40,3 @@ require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/LuaSnip/" })
 -- Install external linters: flake8, eslint
 -- Ensure lazy.nvim is installed for package management
 -- Optional: Install luacheck if you want Lua linting
-

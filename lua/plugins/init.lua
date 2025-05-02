@@ -16,4 +16,5 @@ require("lazy").setup({
     require("plugins.statusline"),
     require("plugins.snippets"),
     require("plugins.telescope"),
+    -- require("plugins.lspsaga"),
 })

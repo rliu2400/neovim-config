@@ -54,6 +54,15 @@ return {
                         }
                     end,
                 },
+                rust = {
+                    function()
+                        return {
+                            exe = "rustfmt",
+                            args = { "--edition 2021" },
+                            stdin = true,
+                        }
+                    end,
+                },
             },
         })
         -- Auto-format on save
